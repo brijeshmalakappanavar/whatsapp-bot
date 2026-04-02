@@ -3,11 +3,16 @@ const app = express();
 
 app.use(express.urlencoded({ extended: false }));
 
+// ✅ Health check route (IMPORTANT for Railway + browser)
+app.get("/", (req, res) => {
+  res.send("✅ Bot is running!");
+});
+
 // Store user sessions
 let users = {};
 
 app.post("/webhook", (req, res) => {
-  const msg = (req.body.Body || "").toLowerCase();
+  const msg = (req.body.Body || "").toLowerCase().trim();
   const user = req.body.From;
 
   if (!users[user]) {
@@ -89,7 +94,7 @@ app.post("/webhook", (req, res) => {
 
     console.log("🔥 NEW ORDER:", users[user]);
 
-    delete users[user]; // reset
+    delete users[user]; // reset session
   }
 
   // DEFAULT
@@ -105,7 +110,7 @@ app.post("/webhook", (req, res) => {
   `);
 });
 
-// IMPORTANT for deployment or local
+// PORT (Railway compatible)
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
